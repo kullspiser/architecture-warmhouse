@@ -1,0 +1,23 @@
+@startuml Basic Sample
+!include <C4/C4_Context>
+
+LAYOUT_WITH_LEGEND()
+
+Person_Ext(user, "Пользователь")
+Person(admin, "Администратор")
+
+System(smart_home, "Умный дом", "Система для контроля и мониторинга температуры и отопления")
+
+Rel(user, smart_home, "Управление отоплением и получение информации о температуре", "HTTPS")
+Rel(admin, smart_home, "Добавление новых устройств", "Manual/HTTPS")
+
+Boundary(sensors, "Дачтики клиентов") {
+    System_Ext(sensor1, "Датчик 1")
+    System_Ext(sensor2, "Датчик 2")
+    System_Ext(sensorN, "Датчик N")
+}
+
+Rel(smart_home, sensor1, "Управление отоплением", "HTTPS")
+Rel(smart_home, sensorN, "Мониторинг температуры", "HTTPS")
+
+@enduml
