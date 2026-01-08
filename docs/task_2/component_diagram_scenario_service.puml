@@ -1,0 +1,30 @@
+@startuml
+!include <C4/C4_Component>
+
+Container_Boundary(scenario, "Scenario Service") {
+
+  Component(api, "Scenario Management API", "HTTP", "Управление пользовательскими сценариями")
+
+  Component(parser, "Scenario Parser", "Разбор и валидация сценариев")
+
+  Component(event_listener, "Event Listener", "Подписка на события Kafka")
+
+  Component(rule_engine, "Rule Engine", "Оценка условий сценариев")
+
+  Component(action_planner, "Action Planner", "Формирование действий")
+
+  Component(command_publisher, "Command Publisher", "Публикация команд в Kafka")
+
+  Component(repo, "Scenario Repository", "Доступ к PostgreSQL")
+}
+
+Rel(api, parser, "Передаёт сценарий")
+Rel(parser, repo, "Сохраняет")
+
+Rel(event_listener, rule_engine, "Передаёт события")
+Rel(rule_engine, action_planner, "Срабатывания")
+Rel(action_planner, command_publisher, "Команды")
+
+Rel(api, repo, "Читает сценарии")
+
+@enduml

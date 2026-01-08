@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Component>
+
+Container_Boundary(telemetry, "Telemetry Service") {
+
+  Component(ingestion_api, "Telemetry Ingestion API", "HTTP/MQTT", "Принимает телеметрию от IoT устройств")
+
+  Component(validator, "Telemetry Validator", "Проверяет корректность телеметрии")
+
+  Component(normalizer, "Telemetry Normalizer", "Приводит данные к единому формату")
+
+  Component(persistence, "Telemetry Persistence Adapter", "Записывает данные в TimescaleDB")
+
+  Component(publisher, "Telemetry Event Publisher",  "Публикует события в Kafka")
+
+  Component(query_api, "Telemetry Query API", "Read-only API для получения телеметрии")
+}
+
+Rel(ingestion_api, validator, "Передаёт данные")
+Rel(validator, normalizer, "Валидные данные")
+Rel(normalizer, persistence, "Сохраняет")
+Rel(normalizer, publisher, "Публикует события")
+Rel(query_api, persistence, "Читает данные")
+
+@enduml

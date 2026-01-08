@@ -1,0 +1,65 @@
+@startuml
+title Telemetry Service — Code Diagram
+
+package "api" {
+  class TelemetryController {
+    +ingest(dto: TelemetryDTO)
+    +getTelemetry(query: TelemetryQuery)
+  }
+}
+
+package "application" {
+  class TelemetryService {
+    +process(dto: TelemetryDTO)
+  }
+
+  class TelemetryQueryService {
+    +query(q: TelemetryQuery): List<TelemetryRecord>
+  }
+}
+
+package "domain" {
+  class TelemetryValidator {
+    +validate(dto: TelemetryDTO)
+  }
+
+  class TelemetryNormalizer {
+    +normalize(dto: TelemetryDTO): TelemetryRecord
+  }
+
+  class TelemetryRecord {
+    deviceId
+    type
+    value
+    timestamp
+  }
+}
+
+package "infrastructure" {
+  class TelemetryRepository {
+    +save(record: TelemetryRecord)
+    +find(q: TelemetryQuery): List<TelemetryRecord>
+  }
+
+  class TelemetryEventPublisher {
+    +publish(record: TelemetryRecord)
+  }
+}
+
+' === Dependencies ===
+
+TelemetryController --> TelemetryService
+TelemetryController --> TelemetryQueryService
+
+TelemetryService --> TelemetryValidator
+TelemetryService --> TelemetryNormalizer
+TelemetryService --> TelemetryRepository
+TelemetryService --> TelemetryEventPublisher
+
+TelemetryNormalizer --> TelemetryRecord
+TelemetryRepository --> TelemetryRecord
+TelemetryEventPublisher --> TelemetryRecord
+
+TelemetryQueryService --> TelemetryRepository
+
+@enduml

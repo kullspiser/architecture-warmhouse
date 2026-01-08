@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Component>
+
+Container_Boundary(device, "Device Service") {
+
+  Component(api, "Device Management API", "HTTP", "Управление устройствами пользователя")
+
+  Component(domain, "Device Domain Service", "Бизнес-логика управления устройствами")
+
+  Component(state_manager, "Device State Manager", "Управление desired и actual state")
+
+  Component(metadata_repo, "Device Metadata Repository", "Доступ к PostgreSQL")
+
+  Component(state_repo, "Device State Repository", "Доступ к Redis")
+
+  Component(command_dispatcher, "Device Command Dispatcher", "Публикация команд в Kafka")
+
+  Component(event_listener, "Device Event Listener",  "Подписка на события Kafka")
+}
+
+Rel(api, domain, "Вызывает")
+Rel(domain, state_manager, "Передаёт команды")
+Rel(state_manager, metadata_repo, "Читает/пишет")
+Rel(state_manager, state_repo, "Читает/пишет")
+Rel(state_manager, command_dispatcher, "Отправляет команды")
+Rel(event_listener, state_manager, "Обновляет состояние")
+
+@enduml
