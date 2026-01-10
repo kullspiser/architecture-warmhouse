@@ -1,0 +1,74 @@
+@startuml
+
+entity User {
+  * id : number <<PK>>
+  --
+  * name : string
+  * email : string
+  * password_hash : string
+  * type : enum(USER, ADMIN)
+  * house_id : number
+}
+
+entity House {
+    * id : number <<PK>>
+    --
+    * address : string
+}
+
+entity Device {
+    * id : number <<PK>>
+    --
+    * device_type_id : number
+    * name : string
+    * room_id : number
+    * serial_number : string
+    * status : enum(ON, OFF, UNKNOWN)
+    * is_streaming : boolean
+}
+
+entity StreamingMetadata {
+    * id : number <<PK>>
+    --
+    * value : JSON
+    * is_active : boolean
+}
+
+entity DeviceType {
+    * id : number <<PK>>
+    --
+    * name : string
+}
+
+entity Room {
+    * id : number <<PK>>
+    --
+    * name : string
+}
+
+entity Telemetry {
+    * id : number <<PK>>
+    --
+    * value : JSON
+    * timestamp : Data
+    * device_id : number
+}
+
+entity Scenario {
+    * id : number <<PK>>
+    --
+    * user_id : number
+    * house_id : number
+    * description : JSON
+}
+
+User --|{  House
+User --|{ Scenario
+House --|{ Device
+House --|{ Scenario
+Device --|| DeviceType
+Device --|| Room
+Device --o{ StreamingMetadata
+Telemetry }|-- Device
+
+@enduml
