@@ -1,0 +1,247 @@
+openapi: 3.1.0
+info:
+  title: Smart House Schema
+  version: 1.0.12
+tags:
+  - name: user
+    description: Everything about your user
+    externalDocs:
+      description: Find out more
+      url: http://swagger.io
+  - name: device
+    description: API for user devices
+    externalDocs:
+      description: Find out more
+      url: http://swagger.io
+  - name: device-type
+    description: API for manage devices type
+    externalDocs:
+      description: Find out more
+      url: http://swagger.io
+paths:
+  /user/{id}:
+    get:
+      tags:
+        - user
+      summary: Get user by user name.
+      description: Get user details based on username.
+      operationId: getUserById
+      parameters:
+        - name: id
+          in: path
+          description: user id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid username supplied
+        '404':
+          description: User not found
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      tags:
+        - user
+      summary: Update user.
+      description: This can only be done by the logged in user.
+      operationId: updateUserById
+      parameters:
+        - name: id
+          in: path
+          description: user id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: Update an existent user in the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: successful operation
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /device/{user_id}:
+    get:
+      tags:
+        - device
+      summary: "Get all devices by user id"
+      description: Get devices list by selected user.
+      operationId: getDevicesByUserId
+      parameters:
+        - name: user_id
+          in: path
+          description: user id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'successful operation'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Device"
+        '404':
+          description: 'not found any devices'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /device:
+    post:
+      tags:
+        - device
+      summary: "Add new device"
+      description: Add new device
+      operationId: addDevice
+      requestBody:
+        description: Add new device
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDevice'
+      responses:
+        '200':
+          description: successful operation
+        '201':
+          description: Already created
+        '422':
+          description: Not valid body
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /device-type:
+    get:
+      tags:
+        - device-type
+      summary: "Get device types"
+      operationId: getDeviceTypes
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DeviceType"
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        password_hash:
+          type: string
+        email:
+          type: string
+        type:
+          type: string
+          enum: ["user", "admin"]
+    Error:
+      type: object
+      properties:
+        detail:
+          type: string
+        code:
+          type: integer
+          format: int64
+    CreateDevice:
+      type: object
+      properties:
+        device_type_id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        room_id:
+          type: integer
+          format: int64
+        serial_number:
+          type: string
+        status:
+          type: string
+          enum: [on, off, unknown]
+        is_streaming:
+          type: boolean
+        user_id:
+          type: integer
+          format: int64
+    Device:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        device_type_id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        room_id:
+          type: integer
+          format: int64
+        serial_number:
+          type: string
+        status:
+          type: string
+          enum: [on, off, unknown]
+        is_streaming:
+          type: boolean
+        user_id:
+          type: integer
+          format: int64
+    DeviceType:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+    Room:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+    House:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        user_id:
+          type: integer
+          format: int64
+        address:
+          type: string

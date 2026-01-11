@@ -7,13 +7,13 @@ entity User {
   * email : string
   * password_hash : string
   * type : enum(USER, ADMIN)
-  * house_id : number
 }
 
 entity House {
     * id : number <<PK>>
     --
     * address : string
+    * user_id : number
 }
 
 entity Device {
@@ -25,6 +25,7 @@ entity Device {
     * serial_number : string
     * status : enum(ON, OFF, UNKNOWN)
     * is_streaming : boolean
+    * user_id : number
 }
 
 entity StreamingMetadata {
