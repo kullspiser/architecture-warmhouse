@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+
+Container_Boundary(account, "Account Service") {
+
+  Component(api, "Account API", "HTTP", "Регистрация, логин, профиль")
+
+  Component(authn, "Authentication Service", "Проверка учётных данных")
+
+  Component(authz, "Authorization Service", "Проверка прав доступа")
+
+  Component(profile, "User Profile Service", "Профиль пользователя")
+
+  Component(ownership, "Ownership / Access Resolver", "Связи пользователь–ресурс")
+
+  Component(token, "Token Provider", "Выпуск и проверка токенов")
+
+  Component(repo, "Account Repository", "Доступ к PostgreSQL")
+}
+
+Rel(api, authn, "Аутентификация")
+Rel(authn, repo, "Читает данные")
+Rel(authn, token, "Запрашивает токен")
+
+Rel(api, profile, "Читает профиль")
+Rel(profile, repo, "Читает/пишет")
+
+Rel(authz, ownership, "Проверяет доступ")
+Rel(ownership, repo, "Читает")
+
+@enduml

@@ -1,0 +1,55 @@
+@startuml Basic Sample
+!include <C4/C4_Container>
+
+LAYOUT_WITH_LEGEND()
+
+Person_Ext(user, "Пользователь")
+Person(admin, "Администратор")
+
+System_Boundary(smart_house, "Умный дом") {
+    Container(web, "SPA - Личный кабинет пользователя", "React", "Основная страница для пользователя, которая предоставляет функционал для добавления и управлением датчиков, а также мониторинга")
+    Container(admin_web, "SPA - Админская часть", "React", "Админ панель для администрирования системы")
+    Container(api_gateway, "API Gateway", "Envoy", "Центральная система обрабатывающая все запросы по принципу API Gateway")
+
+    Container(telemetry_service, "Сервис телеметрии", "Node.JS", "Прием данных с датчиков и их обработка для дальнейшего хранения. Данные запрашиваются от IoT устройств")
+    Container(device_service, "Сервис устройств", "Node.JS", "Управляет умными устройствами пользователя")
+    Container(account_service, "Сервис аккаунтов", "Node.JS", "Сервис аккаунтов, где проходит определение пользователя и его роли")
+    Container(streaming_service, "Сервис стриминга", "Node.JS", "Сервис стриминга данных с датчиков типа камеры")
+    Container(scenario_service, "Сервис сценариев", "Node.JS", "Сервис, ответственный за кастомные сценарии пользователей")
+
+    Container(event_bus, "Брокер сообщений", "Apache Kafka", "Брокер сообщений, который обеспечивает асинхронную доставку событий телеметрии и команд")
+
+    ContainerDb(telemetry_db, "База данных телеметрии", "TimescaleDB", "Хранение данных датчиков")
+    ContainerDb(device_db_metadata, "База данных устройств - метаданные", "PostgreSQL", "Хранение данных устройств - тип, владелец, расположение")
+    ContainerDb(device_db_state, "База данных устройств - состояние", "Redis", "Статус устройства и его доступность")
+    ContainerDb(account_db, "База данных пользователей", "PostgreSQL", "Хранение данных о пользователях и их ролях")
+    ContainerDb(streaming_db, "База данных стриминга", "PostgreSQL", "Метаданные стриминга")
+    ContainerDb(scenario_db, "База данных пользовательских сценариев", "PostgreSQL", "Хранит данные о пользовательских сценариях")
+}
+
+
+
+Rel(user, web, "Пользователь использует личный кабинет для управления своими девайсами", "HTTPS")
+Rel(admin, admin_web, "Администратор модерирует систему", "HTTPS")
+
+Rel(web, api_gateway, "Запросы пользователя уходят сюда для дальнейшего распределения между сервисами", "HTTPS")
+Rel(admin_web, api_gateway, "Запросы администратора уходят сюда для дальнейшего распределения между сервисами", "HTTPS")
+
+Rel(api_gateway, telemetry_service, "Пользователь запрашивает данные с датчиков", "HTTPS")
+Rel(api_gateway, device_service, "Пользователь добавляет и управляет своими умными девайсами", "HTTPS")
+Rel(api_gateway, account_service, "Регистрация пользователя и определение его роли", "HTTPS")
+Rel(api_gateway, streaming_service, "Пользователь в формате стриминга наблюдает за камерами и другими схожими датчиками", "HTTPS")
+Rel(api_gateway, scenario_service, "Пользователь формирует сценарий, учитывая имеющиеся датчики", "HTTPS")
+
+Rel(telemetry_service, event_bus, "Публикует события телеметрии", "Async events")
+Rel(event_bus, scenario_service, "События датчиков для сценариев", "Async events")
+Rel(event_bus, device_service, "Команды и события состояния устройств", "Async events")
+
+Rel(telemetry_service, telemetry_db, "Данные от устройств добавляются в базу, чтобы затем пользователь мог их просматривать")
+Rel(device_service, device_db_metadata, "Данные об устройствах добавляются в базу, когда регистрируются или пользователь меняет их настройки")
+Rel(device_service, device_db_state, "Данные обновляются извне от IoT устройства")
+Rel(account_service, account_db, "Определение пользователя и его роли, хранение и предоставление")
+Rel(streaming_service, streaming_db, "Определение пользователя и его датчиков которые позволяют проводить стриминг")
+Rel(scenario_service, scenario_db, "Сохранение пользовательских сценариев")
+
+@enduml

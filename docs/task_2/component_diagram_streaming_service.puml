@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Component>
+
+Container_Boundary(streaming, "Streaming Service") {
+
+  Component(api, "Streaming Control API", "HTTP", "Управление стримами и камерами")
+
+  Component(authz, "Stream Authorization Service", "Проверка прав доступа к камерам")
+
+  Component(session, "Stream Session Manager", "Жизненный цикл стрим-сессий")
+
+  Component(camera_registry, "Camera Registry", "Streaming-метаданные камер")
+
+  Component(media_adapter, "Media Gateway Adapter", "Интеграция с media-инфраструктурой")
+
+  Component(repo, "Streaming Metadata Repository", "Доступ к PostgreSQL")
+}
+
+Rel(api, authz, "Проверяет доступ")
+Rel(api, session, "Создаёт/останавливает сессии")
+Rel(session, media_adapter, "Инициализирует стрим")
+Rel(camera_registry, repo, "Читает/пишет")
+Rel(session, repo, "Сохраняет состояние")
+
+@enduml
